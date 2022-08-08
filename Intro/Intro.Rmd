@@ -1,0 +1,251 @@
+---
+title: _Self Introduction_
+subtitle: _Self Introduction_
+author: Hi
+date: 12 Sep 2019
+output: 
+  html_document:
+    code_folding: hide
+    df_print: paged
+    toc: TRUE
+    toc_float:
+       smooth_scroll: TRUE
+       collapsed: TRUE
+---
+
+<style type="text/css">
+h1.title { font-size: 38px; color: DarkBlue; text-align: center; }
+h3.subtitle{ font-size: 26px; color: DarkBlue; text-align: center; }
+h4.author{ font-size: 20px; color: DarkRed; text-align: right; }
+h4.date{ font-size: 16px; color: DarkRed; text-align: right; }
+h1 { font-size: 32px; color: Darkgreen; }
+h2 { font-size: 24px; color: YellowGreen; }
+body{ font-size: 16px; text-align: justify}
+td { font-size: 14px; }
+pre { font-size: 14px;}
+img[alt = Personal_Picture] { width: 200px; }
+img[alt = Pet_Picture] { width: 200px; }
+#TOC { color: Purple; font-size: 12px; text-align: justify; border-color: Purple; }
+</style>
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo = FALSE, message = FALSE}
+setwd("~/Desktop")
+library(plotly)
+library(ggplot2)
+library(data.table)
+library(zoo)
+library(TTR)
+library(tidyr)
+library("forecast")
+library("fGarch")
+library("aTSA")
+library("rugarch")
+library("tseries")
+library("MTS")
+library("FinTS")
+library("nardl")
+library(corrplot)
+library(DT)
+
+## work
+data = read.table("d-sbuxsp0106.txt")
+SBUX_return = data[,2]
+log_SBUX_return = log(SBUX_return + 1) * 100
+
+## work
+load("Breakdown_Port.rda")
+load("Matrix_fin_orth.rda")
+
+## work
+q2_ii = read.table("q2ii.txt")
+
+## work
+# Data file for BILLIQ time series over testing period
+load("close_price.rda")
+ETF = close_price
+load("NAV.rda")
+NAV = NAV
+```
+
+# Background
+
+## Name
+
+*__Hi__*
+
+![Personal_Picture](/Desktop/PP1.jpg)
+![Personal_Picture](/Desktop/PP2.jpg)
+
+Link to my Linkedin: *[Hi](https://www.linkedin.com/)*
+
+## Major
+
+- BSc 
+
+- MSc
+
+- Exchange Student 
+
+## Work Experience
+
+- Experience 
+
+## Languages
+
++ Native
++ Programming
+
+## Computer Skills
+
+* R
+* Python
+* C++
+* VBA
+...
+
+## Hobbies
+
++ Swimming 🏊
++ Diving 🐠
++ Sleeping 💤
+
+## Pets
+
+![Pet_Picture](/Desktop/pet1.jpg)
+![Pet_Picture](/Desktop/pet2.jpg)
+![Pet_Picture](/Desktop/pet3.jpg)
+
+# Datatable {.tabset .tabset-fade .tabset-pills}
+
+## Summer 0000
+
+```{r}
+# List
+summer0000_courses_list = "1"
+# Courses grade respective to the list above
+summer0000_courses_grade = "A"
+summer0000 = data.table(cbind(summer0000_courses_list, summer0000_courses_grade) )
+colnames(summer0000) = c("Courses", "Grade")
+datatable(summer0000, options = list(pageLength = 5) )
+```
+
+## Fall 0000
+
+```{r}
+# Courses List
+fall0000_courses_list = c("2", "3", "4", "5", "6")
+# Courses grade respective to the list above
+fall0000_courses_grade = c("A-","A","A","A","A+")
+fall0000 = data.table(cbind(fall0000_courses_list, fall0000_courses_grade) )
+colnames(fall0000) = c("Courses", "Grade")
+datatable(fall0000, options = list(pageLength = 5) )
+```
+
+## Spring 0000
+
+```{r}
+# Courses List
+spring0000_courses_list = c("7", "8", "9", "10")
+# Courses grade respective to the list above
+spring0000_courses_grade = c("A+","B+","A","A+")
+spring0000 = data.table(cbind(spring0000_courses_list, spring0000_courses_grade) )
+colnames(spring0000) = c("Courses", "Grade")
+datatable(spring0000, options = list(pageLength = 5) )
+```
+
+# Some Course Works (Using R)
+
+## 1: GARCH-M ARIMA(0,0,1) Fit Model
+```{r comment = NA}
+# GARCH(1,1)-M fit
+GARCH11_M = ugarchspec(variance.model=list(model="sGARCH"),
+                  mean.model=list(armaOrder=c(0,1),archm=TRUE))
+GARCH11_M_log_SNP = ugarchfit(spec = GARCH11_M, data = log_SBUX_return)
+GARCH11_M_log_SNP
+```
+
+## 2: Valuation Contribution of Portfolio and Correlation Plot
+```{r}
+#Column Chart of risk contribution
+#Column Chart of the portfoio
+mydata1 <- melt(Breakdown_Port,id.vars="Sector",variable.name="Year",value.name="Composition")
+ggplot(mydata1,aes(Var1,Composition,fill=Var2))+
+  geom_bar(stat="identity",position="stack")+
+  ggtitle("Variance Contribution of portfolio")+
+  theme(axis.ticks.length=unit(0.5,'cm'))+
+  guides(fill=guide_legend(title=NULL))
+
+# Corr plot
+cor_value <- cor(Matrix_fin_orth)
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(cor_value, method= "color", tl.col="black", col=col(200), addCoef.col = "black", tl.srt=45, tl.cex = 0.5, number.cex = 0.5)
+```
+
+## 3: Warrant's Price w.r.t volatilities (Interactive Graphing)
+```{r}
+s1_value = seq(from = 0.1, to = 1.0, by = 0.1)
+s2_value = seq(from = 0.1, to = 1.0, by = 0.1)
+q2_ii = read.table("q2ii.txt")
+q2_ii = matrix(data = q2_ii[,1], nrow = length(s1_value), ncol = length(s2_value),
+               dimnames = list(paste0("s1 = ", s1_value), paste0("s2 = ", s2_value)))
+
+plot_ly(z = q2_ii, x = s1_value, y = s2_value) %>% add_surface(
+  contours = list( z = list( show=TRUE, usecolormap=TRUE, highlightcolor="#ff0000",
+                             project=list(z=TRUE) ) ) 
+) %>% layout(title = "Warrant's Price (Variable: σ1 and σ2, Fixed: ρ = 0.0, r = 0.05 and Callable)", 
+             scene = list( xaxis=list(title = "σ1", range = c( min(s1_value) - 0.01, max(s1_value) + 0.01) ),
+                           yaxis=list(title = "σ2", range = c( min(s2_value) - 0.01, max(s2_value) + 0.01) ),
+                           zaxis=list(title = "Warrant's Price", range = c( min(q2_ii) - 0.005, max(q2_ii) + 0.005) ) ) ) 
+```
+
+## 4: Illiquitity Score 42-day Moving Average (Interactive Graphing)
+```{r}
+# BILLIQ time series plot
+# Calculate BILLIQ score
+BILLIQ <- -10000*log(NAV/(NAV + abs(ETF - NAV) ) )
+# fill the NA value with the last observe data
+BILLIQ = na.locf(BILLIQ)
+# Calculate 42 days moving average on each time series
+BILLIQ_series <- as.data.frame(apply(X = BILLIQ, MARGIN = 2, FUN = SMA, n = 42) )
+# Add the date back to the time series data
+date <- index(BILLIQ)
+BILLIQ_series <- cbind(date, BILLIQ_series)
+# Remove the NA data for plotting 
+BILLIQ_series  <- na.omit(BILLIQ_series)
+# Sort the data for plotting
+BILLIQ_score_series <- BILLIQ_series %>% tidyr::gather(ETFs, BILLIQ_score, -date)
+# Plot the data
+BILLIQ_time_series_plot <- ggplot(BILLIQ_score_series, aes(date, BILLIQ_score, color = ETFs)) + geom_line(size = 0.6) + theme_bw()
+BILLIQ_time_series_plot <- ggplotly(BILLIQ_time_series_plot) %>% 
+  layout(title = "42-day moving average BILLIQ time series from 01 Jan 2009 to 30 April 2019", xaxis = list(title = "Date", autorange = TRUE), yaxis = list(title = "BILLIQ"), font = list(size = 10), legend = list(orientation = "h", xanchor = "center", x = 0.5, y = -0.2) )
+BILLIQ_time_series_plot
+```
+Reference:
+[1] Chacko, G., Das, S. R. and Fan, R., 2016. An Index-Based Measure of Liquidity. Journal of Banking & Finance 68 (2016) 162–178
+
+# Reasons
+
+Learn R more and its application in finance
+
+<style>
+div.blue_bg { background-color:#e6f0ff; border-radius: 6px; padding: 6px;}
+</style>
+<div class = "blue_bg">
+Hope to work hard and get <font size="22">**A+**</font>
+</div>
+
+---
+<p style="text-align: center;"> Created by [WONG, Kwun Wa](mailto:kwwongaw@connect.ust.hk) </p>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<p style="text-align: center;">
+    <a href="https://www.linkedin.com/" class="fa fa-linkedin"></a>
+    <a href="https://www.facebook.com/" class="fa fa-facebook"></a>
+    <a href="https://www.instagram.com/" class="fa fa-instagram"></a>
+</p>
